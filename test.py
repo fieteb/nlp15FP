@@ -3,6 +3,7 @@ import os;
 
 import json;
 import configData;
+import re;
 
 configData = configData.getConfig();
 
@@ -21,20 +22,23 @@ def getLanguages() :
 	return res
 
 def getRacistWords() :
-	res = []
+	regex = ''
+		
 	with open(configData.racistWordsFile) as f :
 		for line in f :
-			res.append(line.rstrip())
-	return res
+			regex += r' | \b' + line.strip() + r'\b'
+			regex += r' | \b' + line.strip() + 's' + r'\b' #plural form
+			regex += r' | \b' + line.strip() + '\'s' + r'\b' #possessive form
+
+	return re.compile(regex[2:], flags=re.I | re.X)
 
 def collectData() :
 	countries = getCountries()
 	languages = getLanguages()
-	racistWords = getRacistWords()
+	pattern = getRacistWords()
 	
 	print "Countries: {}".format(countries)
 	print "Languages: {}".format(languages)
-	print "Racist words: {}".format(racistWords)
 	locs = []
 	tweets = []
 
@@ -45,24 +49,20 @@ def collectData() :
 		with open(os.path.join(configData.dataDir, fileName)) as dataFile :
 			lines = dataFile.readlines()
 			
-			parsed_data = [sample.split('\t') for sample in lines[:-1]]
+		parsed_data = [sample.split('\t') for sample in lines[:-1]]
+		
+		for sample in parsed_data:
+			loc = json.loads(sample[0])
+			tweet = json.loads(sample[1])
 			
-			for sample in parsed_data:
-				loc = json.loads(sample[0])
-				tweet = json.loads(sample[1])
-				
-				if tweet["user"]["lang"] in languages and loc["country_iso3"] in countries:
-					for word in tweet["text"].split() :
-						if word.lower() in racistWords :
-							locs.append(loc)
-							tweets.append(tweet)
-							print tweet["text"]
-							break
-			
+			if tweet["user"]["lang"] in languages and loc["country_iso3"] in countries:
+				if pattern.match(tweet["text"]):
+					locs.append(loc)
+					tweets.append(tweet)
+					print tweet["text"]
+					
 		print "Reading {} done.".format(fileName)
 		break
-
-
 
 def calcSeconds(start, end) :
 	return (end - start) / 60
