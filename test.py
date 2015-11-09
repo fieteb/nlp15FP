@@ -6,8 +6,6 @@ import configData;
 
 configData = configData.getConfig();
 
-
-
 def getCountries() :
 	res = []
 	with open(configData.countryFile) as f :
@@ -34,7 +32,7 @@ def collectData() :
 	languages = getLanguages()
 	racistWords = getRacistWords()
 	
-	print "Countries: {}".format(countries)
+      print "Countries: {}".format(countries)
 	print "Languages: {}".format(languages)
 	print "Racist words: {}".format(racistWords)
 	locs = []
@@ -46,39 +44,51 @@ def collectData() :
 		# parse file
 		with open(os.path.join(configData.dataDir, fileName)) as dataFile :
 			lines = dataFile.readlines()
-
-		lineNo = 0
-		for line in lines :
-			# split the first (location) and the second (tweet) part.
-			# the location is until the first "}".
-			for splitPos in range(0, len(line)) :
-				if line[splitPos] == '}' : break
-			splitPos += 1
-			
-			# load the line as dictionaries,
-			#  store them if a word matches the keywords and if the language
-			#  is English.
-			try :
-				loc = json.loads(line[0 : splitPos])
-				tweet = json.loads(line[splitPos : -1])	
-								
-				# only check english tweets
-				if tweet["user"]["lang"] in languages and loc["country_iso3"] in countries:	
-					for word in tweet["text"].split() :
-						if word.lower() in racistWords : 
-				
-							locs.append(loc)
-							tweets.append(tweet)
-							print tweet["text"]
-							break
-			except :
-				"Error parsing line. Skipping to next"
-			lineNo += 1
-			
-		
+   
+            parsed_data = [sample.split('\t') for sample in json_data[:-1]]
+            
+            for sample in parsed_data:
+                loc = json.loads(sample[2])
+                tweet = json.loads(sample[3])                
+                
+                if tweet["user"]["lang"] in languages and loc["country_iso3"] in countries:	
+                    for word in tweet["text"].split() :
+                        if word.lower() in racistWords :
+                            locs.append(loc)
+                            tweets.append(tweet)
+                            print tweet["text"]
+                            break
 			
 		print "Reading {} done.".format(fileName)
 		break
+
+#		lineNo = 0
+#		for line in lines :
+#			# split the first (location) and the second (tweet) part.
+#			# the location is until the first "}".
+#			for splitPos in range(0, len(line)) :
+#				if line[splitPos] == '}' : break
+#			splitPos += 1
+#			
+#			# load the line as dictionaries,
+#			#  store them if a word matches the keywords and if the language
+#			#  is English.
+#			try :
+#				loc = json.loads(line[0 : splitPos])
+#				tweet = json.loads(line[splitPos : -1])	
+#								
+#				# only check english tweets
+#				if tweet["user"]["lang"] in languages and loc["country_iso3"] in countries:	
+#					for word in tweet["text"].split() :
+#						if word.lower() in racistWords : 
+#				
+#							locs.append(loc)
+#							tweets.append(tweet)
+#							print tweet["text"]
+#							break
+#			except :
+#				"Error parsing line. Skipping to next"
+#			lineNo += 1
 
 
 
