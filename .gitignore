@@ -1,2 +1,4 @@
 configData.py
-.pyc
+*.pyc
+.project
+.metadata
