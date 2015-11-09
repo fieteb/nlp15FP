@@ -2,36 +2,29 @@ import time;
 import os;
 
 import json;
+import configData;
 
-# DATA_DIR = "/home/fiete/Documents/datasets/twitter";
-# COUNTRY_FILE = "/home/fiete/ownCloud/eigeneOrdner/WS2015/NLP/finalProject/countries.txt"
-# LANGUAGES_FILE = "/home/fiete/ownCloud/eigeneOrdner/WS2015/NLP/finalProject/languages.txt"
-# RACIST_WORDS_FILE = "/home/fiete/ownCloud/eigeneOrdner/WS2015/NLP/finalProject/racistWords.txt"
-
-DATA_DIR = "/home/fiete/Documents/twitter";
-COUNTRY_FILE = "/media/fiete/data/OwnCloud/eigeneOrdner/WS2015/NLP/finalProject/countries.txt"
-LANGUAGES_FILE = "/media/fiete/data/OwnCloud/eigeneOrdner/WS2015/NLP/finalProject/languages.txt"
-RACIST_WORDS_FILE = "/media/fiete/data/OwnCloud/eigeneOrdner/WS2015/NLP/finalProject/racistWords.txt"
+configData = configData.getConfig();
 
 
 
 def getCountries() :
 	res = []
-	with open(COUNTRY_FILE) as f :
+	with open(configData.countryFile) as f :
 		for line in f :
 			res.append(line.rstrip())
 	return res
 
 def getLanguages() :
 	res = []
-	with open(LANGUAGES_FILE) as f :
+	with open(configData.languageFile) as f :
 		for line in f :
 			res.append(line.rstrip())
 	return res
 
 def getRacistWords() :
 	res = []
-	with open(RACIST_WORDS_FILE) as f :
+	with open(configData.racistWordsFile) as f :
 		for line in f :
 			res.append(line.rstrip())
 	return res
@@ -47,11 +40,11 @@ def collectData() :
 	locs = []
 	tweets = []
 
-	for fileName in os.listdir(DATA_DIR) :
+	for fileName in os.listdir(configData.dataDir) :
 		print "Processing {}".format(fileName)
 
 		# parse file
-		with open(os.path.join(DATA_DIR, fileName)) as dataFile :
+		with open(os.path.join(configData.dataDir, fileName)) as dataFile :
 			lines = dataFile.readlines()
 
 		lineNo = 0
