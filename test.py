@@ -26,9 +26,9 @@ def getRacistWords() :
 		
 	with open(configData.racistWordsFile) as f :
 		for line in f :
-			regex += r' | \b' + line.replace(' ', '\s').strip() + r'\b'
-			regex += r' | \b' + line.replace(' ', '\s').strip() + 's' + r'\b' #plural form
-			regex += r' | \b' + line.replace(' ', '\s').strip() + '\'s' + r'\b' #possessive form
+			regex += r'|\b' + line.replace(' ', '\s').strip() + r'\b'
+			regex += r'|\b' + line.replace(' ', '\s').strip() + 's' + r'\b' #plural form
+			regex += r'|\b' + line.replace(' ', '\s').strip() + '\'s' + r'\b' #possessive form
 
 	return re.compile(regex[2:], flags=re.I | re.X)
 
