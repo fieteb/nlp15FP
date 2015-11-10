@@ -32,10 +32,7 @@ def getRacistWords():
 def collectData() :
 	countries = getCountries()
 	languages = getLanguages()
-	pattern = getRacistWords()
 	racistWords = getRacistWords()
-	pattern = re.compile('|'.join(racistWords))
-	print racistWords
 	
 	print "Countries: {}".format(countries)
 	print "Languages: {}".format(languages)
@@ -54,21 +51,25 @@ def collectData() :
 		for sample in parsed_data:
 			loc = json.loads(sample[0])
 			tweet = json.loads(sample[1])
-			
-			if tweet["user"]["lang"] in languages and loc["country_iso3"] in countries:
- 				if pattern.match(tweet["text"]):
- 					locs.append(loc)
- 					tweets.append(tweet)
- 					print tweet["text"]
-#				for word in tweet["text"].split() :
-#					if word in racistWords :
-#						locs.append(loc)
-#						tweets.append(tweet)
-#						print tweet["text"]
-#						break;
+			for word in tweet["text"].split() :
+				if word in racistWords :
+					locs.append(loc)
+					tweets.append(tweet["text"])
+					# print tweet["text"]
+					break;
 					
 		print "Reading {} done.".format(fileName)
-		break
+	
+	
+	f = open(os.path.join(configData.resDir, "filteredTweets.txt"), "w");
+	for tweet in tweets:
+		try: 
+			f.write(tweet + '\n');
+		except: 
+			pass
+		
+	f.close();
+	return tweets
 
 def calcSeconds(start, end) :
 	return (end - start) / 60
