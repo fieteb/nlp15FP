@@ -59,8 +59,7 @@ for fileName in os.listdir(configData.dataDir) :
     
 	print('Loading all Twitter data from %s' %fileName)
 	t0 = time()
-#	parsed_data = [json.loads(sample.split('\t')[1])['text'] for sample in json_data[:-1]] #-1 to ignore last line which is empty
-	json_data = [sample.split('\t') for sample in raw_data[:-1]]
+	json_data = [sample.split('\t') for sample in raw_data[:-1]] #-1 to ignore last line which is empty
 	loc_data = [json.loads(d[0]) for d in json_data]
 	all_tweets = [json.loads(d[1]) for d in json_data]
 	tf = time()
@@ -94,4 +93,3 @@ for fileName in os.listdir(configData.dataDir) :
 	tf = time()
 	print('Time elapsed: %f seconds' %(tf-t0))
 	print('Skipped %i tweets due to encoding mismatch' %count)
-	break;
