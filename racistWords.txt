@@ -10,12 +10,9 @@ polack
 kyke
 gorilla
 racist
-black
-white
 jew
 jewish
 jewing
-jim crow
 redskin
 mulatto
 spic
@@ -38,10 +35,10 @@ KKK
 gyp
 jip
 gypped
-yellow
 darker
 savage
-ching chong
+ching 
+chong
 supremacy
 arab
 latino
@@ -60,11 +57,64 @@ palestine
 palestinian
 russian
 african
-ni hao
 nihao
 ethnicity
 ethnic
-skin color
-skin color
+skin 
 mosshead
 cracker
+AYE-RAB
+BEANO
+BLACKIE
+BOG-RAT
+BOG-HOPPER
+BUCKWHEAT
+CANUCK
+CHICO
+CHINAMAN
+CHINK
+CLOD-HOPPER
+COON
+CRACKER
+DAGO
+DARKIE
+DINK
+FROG
+FAGGOT
+FAG
+GOOK
+GOY
+GOYEM
+GREASER
+GREASE-BALL
+GRINGO
+HALF-BREED
+HEEB
+HICK
+HILLBILLY
+HONKY
+INJUN
+JAP
+JIGABOO
+KYKE
+KRAUT
+LIMEY
+NIP
+PAKI
+POLACK
+REDSKIN
+RUSKY
+SHIT-KICKER
+SAMBO
+SHYSTER
+SPADE
+SAND-NIGGER
+SPIC
+SPOOK
+TOWEL-HEAD
+UNCLE TOM
+WASP
+WHITEY
+WOP
+YID
+ZEBRA-HEAD
