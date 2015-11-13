@@ -1,4 +1,9 @@
 configData.py
 *.pyc
-.project
-.metadata
+*.project
+*.metadata
+*.prefs
+*~
+*.settings
+*.DS_Store
+*.pydevproject
