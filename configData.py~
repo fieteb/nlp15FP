@@ -1,0 +1,19 @@
+
+
+DATA_DIR = "/home/fiete/Documents/twitter";
+COUNTRY_FILE = "/home/fiete/repos/nlpFinalProject/countries.txt"
+LANGUAGES_FILE = "/home/fiete/repos/nlpFinalProject/languages.txt"
+RACIST_WORDS_FILE = "/home/fiete/repos/nlpFinalProject/racistWords.txt"
+RES_DIR = "/home/fiete/Documents/twitterRes";
+
+class ConfigData :
+	def __init__(self) :
+		self.dataDir = DATA_DIR;
+		self.countryFile = COUNTRY_FILE;
+		self.languageFile = LANGUAGES_FILE;
+		self.racistWordsFile = RACIST_WORDS_FILE;
+		self.resDir = RES_DIR;
+
+def getConfig() :
+	return ConfigData();
+	
