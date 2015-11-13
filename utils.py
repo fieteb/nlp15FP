@@ -16,6 +16,7 @@ class Filter:
         self.attributes = attributes;
         self.conditions = conditions;
         self.keywordDict = self.createKeywordDict();   
+        print self.keyWords;
     
     def createKeywordDict(self) :
         if self.keyWords != None and len(self.keyWords) > 0 : 
