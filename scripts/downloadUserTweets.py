@@ -5,7 +5,7 @@ import tweepy #https://github.com/tweepy/tweepy
 import csv
 
 '''
-
+	I used for this file a lot of code I found on the web, unfortunately, I dont find the source anymore...
 '''
 
 #Twitter API credentials
