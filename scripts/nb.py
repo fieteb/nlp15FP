@@ -37,15 +37,14 @@ def getWords(tupleList):
 '''
 if __name__ == "__main__" :
     print("NB start");
-    racistTweets = [(nbPreprocess(d), c) for (d, c) in loadRacistTweets()];
-    normalTweets = [(nbPreprocess(d), c) for (d, c) in loadNonRacistTweets(numTweets=len(racistTweets))];
-    
+    racistTweets = [(nbPreprocess(d), c) for (d, c) in loadRacistTweets(excludeJokes=True)];
+    normalTweets = [(nbPreprocess(d), c) for (d, c) in loadNonRacistTweets(numTweets=len(racistTweets))];   
 
     print("Number of racist tweets: {}.".format(len(racistTweets)));
     print("Number of normal tweets: {}.".format(len(normalTweets)));
     
-    numTrain = 3000;
-    numTest = 1500; 
+    numTrain = 1500;
+    numTest = 500; 
      
     trainR = racistTweets[0:numTrain];
     testR = racistTweets[numTrain:numTrain + numTest];
