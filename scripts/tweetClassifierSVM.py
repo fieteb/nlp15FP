@@ -40,12 +40,12 @@ numTrainR = 1500;
 numTestR = 500;
 
 #number of normal tweets
-numTrainN = 5000;
+numTrainN = 8000;
 numTestN = 2000;
 
 #load raw tweets:
 rawRacistTweets = loadRacistTweets(numTweets = numTrainR + numTestR, excludeJokes=True)
-rawNormalTweets = loadNonRacistTweets(numTweets= numTrainN + numTestN)
+rawNormalTweets = loadNonRacistTweets(numTweets = numTrainN + numTestN)
 rawTweets = rawRacistTweets + rawNormalTweets
 
 #pre-process tweets (i.e. remove certain words):
