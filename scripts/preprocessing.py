@@ -1,10 +1,4 @@
-import nltk;
 import string;
-import sys;
-
-
-reload(sys);
-sys.setdefaultencoding("utf8");
 
 # NB stop words start
 
@@ -20,7 +14,7 @@ punct = set(string.punctuation);
 
 def nbPreprocess(tokenizedLine) :
     # check for excluded words
-    tmp = ' '.join(w for w.lower() in line if w not in excludedWords).strip();
+    tmp = ' '.join(w.lower() for w in tokenizedLine if w.lower() not in excludedWords).strip();
     # check for punctuation
     return ''.join(ch for ch in tmp if ch not in punct);
     

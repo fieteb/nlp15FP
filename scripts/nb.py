@@ -7,6 +7,8 @@ from sklearn.ensemble import RandomForestClassifier
 from tweetLoader import loadNonRacistTweets;
 from tweetLoader import loadRacistTweets;
 
+from preprocessing import nbPreprocess;
+
 reload(sys);
 sys.setdefaultencoding("utf8");
 
@@ -17,13 +19,6 @@ with open("../data/uninterestingWords.txt") as f :
         
 
 punct = set(string.punctuation);
-
-
-def preprocess(line) :
-    # check for excluded words
-    tmp = ' '.join(w for w in line.lower().split(" ") if w not in excludedWords).strip();
-    # check for punctuation
-    return ''.join(ch for ch in tmp if ch not in punct);
 
 def getWords(tupleList):
     res = [];
@@ -42,8 +37,8 @@ def getWords(tupleList):
 '''
 if __name__ == "__main__" :
     print("NB start");
-    racistTweets = loadRacistTweets();
-    normalTweets = loadNonRacistTweets(numTweets=len(racistTweets));
+    racistTweets = [(nbPreprocess(d), c) for (d, c) in loadRacistTweets()];
+    normalTweets = [(nbPreprocess(d), c) for (d, c) in loadNonRacistTweets(numTweets=len(racistTweets))];
          
     print("Number of racist tweets: {}.".format(len(racistTweets)));
     print("Number of normal tweets: {}.".format(len(normalTweets)));
@@ -86,9 +81,7 @@ if __name__ == "__main__" :
     print("----------------------");
     print("Naive Bayes Classifier");
     print(nltk.classify.accuracy(nbClass, testFeats));
-     
-    nbClass.show_most_informative_features(10);
-    
+         
     # SVM
     svmClass = nltk.classify.SklearnClassifier(LinearSVC());
     svmClass.train(trainFeats);
