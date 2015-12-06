@@ -1,4 +1,3 @@
-from random import shuffle;
 
 LABEL_FILES = ["../data/labels.txt", "../data/labels2.txt", "../data/labels3.txt"];
 
@@ -28,7 +27,6 @@ def loadNonRacistTweets(numTweets = None) :
         if numTweets != None and numLoadedTweets >= numTweets :
             break;
         
-    shuffle(res);
     return res;
     
 
@@ -60,7 +58,6 @@ def loadRacistTweets(numTweets = None, excludeJokes = False):
         if numTweets != None and numLoadedTweets >= numTweets :
             break;
         
-    shuffle(res);
     return res;
 
 
