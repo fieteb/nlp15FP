@@ -16,5 +16,5 @@ def nbPreprocess(tokenizedLine) :
     # check for excluded words
     tmp = ' '.join(w.lower() for w in tokenizedLine if w.lower() not in excludedWords).strip();
     # check for punctuation
-    return ''.join(ch for ch in tmp if ch not in punct);
+    return ''.join(ch for ch in tmp if ch not in punct).split();
     

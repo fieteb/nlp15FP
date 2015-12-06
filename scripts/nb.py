@@ -39,7 +39,8 @@ if __name__ == "__main__" :
     print("NB start");
     racistTweets = [(nbPreprocess(d), c) for (d, c) in loadRacistTweets()];
     normalTweets = [(nbPreprocess(d), c) for (d, c) in loadNonRacistTweets(numTweets=len(racistTweets))];
-         
+    
+
     print("Number of racist tweets: {}.".format(len(racistTweets)));
     print("Number of normal tweets: {}.".format(len(normalTweets)));
     

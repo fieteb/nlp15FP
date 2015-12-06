@@ -19,7 +19,7 @@ def loadNonRacistTweets(numTweets = None) :
             label = int(labels[lineIdx]);
             
             if label == 1 :
-                res.append((tweets[lineIdx].split(), 0));
+                res.append((tweets[lineIdx].split(" "), 0));
                 numLoadedTweets += 1;
                 
                 if numTweets != None and numLoadedTweets >= numTweets :
@@ -47,7 +47,7 @@ def loadRacistTweets(numTweets = None, excludeJokes = False):
             label = int(labels[lineIdx]);
             
             if label == 0 :
-                res.append((tweets[lineIdx].split(), 1));
+                res.append((tweets[lineIdx].split(" "), 1));
                 numLoadedTweets += 1;
                 
                 if numTweets != None and numLoadedTweets >= numTweets :
