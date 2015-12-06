@@ -46,6 +46,15 @@ def getWords(tupleList):
             res.append(word);
     return res;
 
+#http://stackoverflow.com/questions/14003291/n-grams-with-naive-bayes-classifier
+def bigramReturner (tweetString):
+    tweetString = tweetString.lower()
+    #tweetString = removePunctuation (tweetString)
+    bigramFeatureVector = []
+    for item in nltk.bigrams(tweetString.split()):
+        bigramFeatureVector.append(' '.join(item))
+    return bigramFeatureVector
+
 
 '''
     I used code from
@@ -84,6 +93,8 @@ if __name__ == "__main__" :
     def getFeatures(document) :
         documentWords = set(document);
         features = {};
+        for pair in bigramReturner(' '.join(documentWords)):
+            features['contains_pair({})'.format(pair)] = 1
         for word in wordFeatures:
             features['contains({})'.format(word)] = (word in documentWords);
         return features
@@ -103,3 +114,7 @@ if __name__ == "__main__" :
     nbClass.show_most_informative_features(10);
 
     print("NB end");
+
+    #64.14% on bigram features - BoW
+    #73% on unigram features - BoW
+    #81.45%

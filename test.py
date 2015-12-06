@@ -3,7 +3,6 @@ import os;
 
 import json;
 import configData;
-import re;
 
 configData = configData.getConfig();
 
@@ -26,14 +25,14 @@ def getRacistWords():
 	with open(configData.racistWordsFile) as f :
 		for line in f :
 			res.append(line.rstrip())
-	
+
 	return res;
 
 def collectData() :
 	countries = getCountries()
 	languages = getLanguages()
 	racistWords = getRacistWords()
-	
+
 	print "Countries: {}".format(countries)
 	print "Languages: {}".format(languages)
 	locs = []
@@ -45,9 +44,9 @@ def collectData() :
 		# parse file
 		with open(os.path.join(configData.dataDir, fileName)) as dataFile :
 			lines = dataFile.readlines()
-			
+
 		parsed_data = [sample.split('\t') for sample in lines[:-1]]
-		
+
 		for sample in parsed_data:
 			loc = json.loads(sample[0])
 			tweet = json.loads(sample[1])
@@ -57,17 +56,17 @@ def collectData() :
 					tweets.append(tweet["text"])
 					# print tweet["text"]
 					break;
-					
+
 		print "Reading {} done.".format(fileName)
-	
-	
+
+
 	f = open(os.path.join(configData.resDir, "filteredTweets.txt"), "w");
 	for tweet in tweets:
-		try: 
+		try:
 			f.write(tweet + '\n');
-		except: 
+		except:
 			pass
-		
+
 	f.close();
 	return tweets
 
