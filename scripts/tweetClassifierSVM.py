@@ -5,96 +5,140 @@ Created on Sun Dec  6 13:26:44 2015
 @author: snoran
 """
 
+#%% --------------------------------------------------------------------
+#
+#                             Imports
+#
+# ----------------------------------------------------------------------
+
+from __future__ import division
+
 import nltk;
 from tweetLoader import loadNonRacistTweets, loadRacistTweets
 from sklearn.svm import LinearSVC
-from preprocessing import nbPreprocess
+from sklearn import metrics
+from preprocessing import preprocess
 from compute_features import FeatureExtractor
+from time import time
+from argparse import ArgumentParser
+import numpy as np
 
-def getWords(tweets):
-    words = []
-    for tweet in tweets:
-        for w in tweet[0]:
-            words.append(w.lower())
-    return words
+#%% --------------------------------------------------------------------
+#
+#                             Main Code
+#
+# ----------------------------------------------------------------------
 
-#http://stackoverflow.com/questions/14003291/n-grams-with-naive-bayes-classifier
-def bigramFeatures (tweetString):
-    tweetString = tweetString.lower()
-    bigramFeatureVector = []
-    for item in nltk.bigrams(tweetString.split()):
-        bigramFeatureVector.append(' '.join(item))
-    return bigramFeatureVector
+def precision_recall_fscore(confusion_matrix, class_index):
+	precision = confusion_matrix[class_index,class_index]/sum(confusion_matrix[:,class_index])
+	recall = confusion_matrix[class_index,class_index]/sum(confusion_matrix[class_index,:])
+	fscore = 2 * precision * recall / (precision + recall)
+	return precision, recall, fscore
 
-'''
-    I used code from
-    http://www.nltk.org/book/ch06.html
-    for this
+#%% --------------------------------------------------------------------
+#
+#                             Evaluate Classifier
+#
+# ----------------------------------------------------------------------
 
-'''
+def evaluate_classifier (numTrainR, numTrainN, numTestR, numTestN):
+    '''
+        I used code from
+        http://www.nltk.org/book/ch06.html
+        for this
 
-print("NB start");
+    '''
 
-#number of  racist tweets
-numTrainR = 1500;
-numTestR = 500;
+    #load raw tweets:
+    rawRacistTweets = loadRacistTweets(numTweets = numTrainR + numTestR, excludeJokes=True)
+    rawNormalTweets = loadNonRacistTweets(numTweets = numTrainN + numTestN)
+    rawTweets = rawRacistTweets + rawNormalTweets
 
-#number of normal tweets
-numTrainN = 8000;
-numTestN = 2000;
+    #pre-process tweets (i.e. remove certain words):
+    racistTweets = [(preprocess(d), c) for (d, c) in rawRacistTweets];
+    normalTweets = [(preprocess(d), c) for (d, c) in rawNormalTweets];
 
-#load raw tweets:
-rawRacistTweets = loadRacistTweets(numTweets = numTrainR + numTestR, excludeJokes=True)
-rawNormalTweets = loadNonRacistTweets(numTweets = numTrainN + numTestN)
-rawTweets = rawRacistTweets + rawNormalTweets
+    print("Number of racist tweets: {}.".format(len(racistTweets)));
+    print("Number of normal tweets: {}.".format(len(normalTweets)));
 
-#pre-process tweets (i.e. remove certain words):
-racistTweets = [(nbPreprocess(d), c) for (d, c) in rawRacistTweets];
-normalTweets = [(nbPreprocess(d), c) for (d, c) in rawNormalTweets];
-allTweets = racistTweets + normalTweets
+    #split into train/test sets
+    trainR = racistTweets[0:numTrainR];
+    testR = racistTweets[numTrainR:numTrainR + numTestR];
 
-print("Number of racist tweets: {}.".format(len(racistTweets)));
-print("Number of normal tweets: {}.".format(len(normalTweets)));
+    trainN = normalTweets[0:numTrainN];
+    testN = normalTweets[numTrainN:numTrainN + numTestN];
 
-#split into train/test sets
-trainR = racistTweets[0:numTrainR];
-testR = racistTweets[numTrainR:numTrainR + numTestR];
+    #combine racist/non-racist tweets into single train/test datasets
+    trainTweets = trainR + trainN;
+    testTweets = testR + testN;
 
-trainN = normalTweets[0:numTrainN];
-testN = normalTweets[numTrainN:numTrainN + numTestN];
+    featureExtractor = FeatureExtractor(FeatureExtractor.TF_IDF)
+    featureExtractor.train_TF_IDF(trainTweets)
 
-#combine racist/non-racist tweets into single train/test datasets
-trainTweets = trainR + trainN;
-testTweets = testR + testN;
+    #compute training & testing features
+    trainFeats = [(featureExtractor.get_feature_vector(d), c) for (d,c) in trainTweets];
+    testFeats = [(featureExtractor.get_feature_vector(d), c) for (d,c) in testTweets];
 
-#get word frequencies
-trainWords = getWords(trainTweets);
-wordFreqs = nltk.FreqDist(w for w in trainWords);
+    svmClass = nltk.classify.SklearnClassifier(LinearSVC());
+    svmClass.train(trainFeats);
 
-# plot of most common words
-#wordFreqs.plot(50, cumulative=False);
+    #evaluate SVM classifier
+    print("----------------------");
+    print("SVM Classifier");
+    print("accuracy: %.3f" %nltk.classify.accuracy(svmClass, testFeats));
 
-featureExtractor = FeatureExtractor()
+    Y_test = [testFeat[1] for testFeat in testFeats]
+    Y_pred = svmClass.classify_many([testFeat[0] for testFeat in testFeats])
+    conf=metrics.confusion_matrix(Y_test, Y_pred, [0,1])
+    precision, recall, fscore = precision_recall_fscore(conf, 1)
 
-featureExtractor.train_TF_IDF(trainTweets)
 
-#compute training & testing features
-trainFeats = [(featureExtractor.getFeatureVector(d), c) for (d,c) in trainTweets];
-testFeats = [(featureExtractor.getFeatureVector(d), c) for (d,c) in testTweets];
 
-print(trainFeats[-2])
-print(testFeats[-2])
+    print("precision: %.3f" %precision)
+    print("recall: %.3f" %recall)
+    print("f1 score: %.3f" %fscore)
 
-svmClass = nltk.classify.SklearnClassifier(LinearSVC());
-svmClass.train(trainFeats);
+    print("confusion matrix:")
+    print(conf)
 
-print("----------------------");
-print("SVM Classifier");
-print(nltk.classify.accuracy(svmClass, testFeats));
+    FP_index = np.where(np.subtract(Y_pred, Y_test)==1)[0][0]
+    FN_index = np.where(np.subtract(Y_pred, Y_test)==-1)[0][0]
+    print("False positive: {}".format(' '.join(rawTweets[FP_index][0])))
+    print("False negative: {}".format(' '.join(rawTweets[FN_index][0])))
 
-# Incorrect Classifications:
-# TODO: Compute precision/recall
-incorrect = []
-for i in range(numTestN):
-    if svmClass.classify(testFeats[i][0]) != testTweets[i][1]:
-        incorrect.append(rawTweets[numTrainN+i][0])
+#%% --------------------------------------------------------------------
+#
+#                             Main Method
+#
+# ----------------------------------------------------------------------
+
+def main(numTrainR, numTrainN, numTestR, numTestN):
+    '''
+    Main method: calls evaluate_classifier() and shows time elapsed
+    '''
+    t0 = time()
+    evaluate_classifier(numTrainR, numTrainN, numTestR, numTestN)
+
+    tf = time()
+    print "Elapsed time: {} seconds".format(tf - t0)
+
+#%% --------------------------------------------------------------------
+#
+#                             Run Code
+#
+# ----------------------------------------------------------------------
+
+if __name__ == "__main__" :
+    parser = ArgumentParser()
+    parser.add_argument("--n-racist-train", type=int, dest="numTrainR",
+                default=1500, help="Number of racist tweets in the training set")
+    parser.add_argument("--n-normal-train", type=int, dest="numTrainN",
+                default=8000, help="Number of non-racist tweets in the training set")
+    parser.add_argument("--n-racist-test", type=int, dest="numTestR",
+                default=1500, help="Number of racist tweets in the test set")
+    parser.add_argument("--n-normal-test", type=int, dest="numTestN",
+                default=8000, help="Number of non-racist tweets in the test set")
+
+    args = parser.parse_args()
+
+    main(**vars(args))
