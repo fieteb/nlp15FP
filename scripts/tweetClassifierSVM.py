@@ -16,6 +16,7 @@ from __future__ import division
 import nltk;
 from tweetLoader import loadNonRacistTweets, loadRacistTweets
 from sklearn.svm import LinearSVC
+from sklearn.ensemble import RandomForestClassifier as RF
 from sklearn import metrics
 from preprocessing import preprocess
 from compute_features import FeatureExtractor
@@ -41,7 +42,7 @@ def precision_recall_fscore(confusion_matrix, class_index):
 #
 # ----------------------------------------------------------------------
 
-def evaluate_classifier (numTrainR, numTrainN, numTestR, numTestN, verbose):
+def evaluate_classifier (numTrainR, numTrainN, numTestR, numTestN, model, verbose):
     '''
         I used code from
         http://www.nltk.org/book/ch06.html
@@ -76,27 +77,41 @@ def evaluate_classifier (numTrainR, numTrainN, numTestR, numTestN, verbose):
     preprocessedTrainTweets = [(preprocess(d), c) for (d, c) in trainTweets];
     preprocessedTestTweets = [(preprocess(d), c) for (d, c) in testTweets];
 
-    featureExtractor = FeatureExtractor([FeatureExtractor.UNIGRAM, FeatureExtractor.BIGRAM, FeatureExtractor.TF_IDF])
-    featureExtractor.train_TF_IDF(trainTweets)
+    featureExtractor = FeatureExtractor([FeatureExtractor.UNIGRAM, FeatureExtractor.BIGRAM])
+    #featureExtractor.train_TF_IDF(trainTweets)
 
     #compute training & testing features
     trainFeats = [(featureExtractor.get_feature_vector(d), c) for (d,c) in preprocessedTrainTweets];
     testFeats = [(featureExtractor.get_feature_vector(d), c) for (d,c) in preprocessedTestTweets];
 
-    svmClass = nltk.classify.SklearnClassifier(LinearSVC());
-    svmClass.train(trainFeats);
+    if model == 'SVM':
+        classifier = nltk.classify.SklearnClassifier(LinearSVC());
+        classifier.train(trainFeats);
 
-    #evaluate SVM classifier
-    print("----------------------");
-    print("SVM Classifier");
-    print("accuracy: %.3f" %nltk.classify.accuracy(svmClass, testFeats));
+        #evaluate SVM classifier
+        print("----------------------");
+        print("SVM Classifier");
+    elif model == 'RF':
+        rf = RF(n_estimators=75, max_features = 'sqrt', 											      class_weight='auto', criterion="entropy",
+			 min_samples_split=9, random_state=0)
+        classifier = nltk.classify.SklearnClassifier(rf);
+        classifier.train(trainFeats);
+        #evaluate RF classifier
 
+        print("----------------------");
+        print("RF Classifier");
+    #note that TF-IDF cannot be set when model=NB
+    elif model == 'NB':
+        # Bayes
+        classifier = nltk.NaiveBayesClassifier.train(trainFeats);
+        print("----------------------");
+        print("NB Classifier");
+
+    print("accuracy: %.3f" %nltk.classify.accuracy(classifier, testFeats));
     Y_test = [testFeat[1] for testFeat in testFeats]
-    Y_pred = svmClass.classify_many([testFeat[0] for testFeat in testFeats])
+    Y_pred = classifier.classify_many([testFeat[0] for testFeat in testFeats])
     conf=metrics.confusion_matrix(Y_test, Y_pred, [0,1])
     precision, recall, fscore = precision_recall_fscore(conf, 1)
-
-
 
     print("precision: %.3f" %precision)
     print("recall: %.3f" %recall)
@@ -120,12 +135,12 @@ def evaluate_classifier (numTrainR, numTrainN, numTestR, numTestN, verbose):
 #
 # ----------------------------------------------------------------------
 
-def main(numTrainR, numTrainN, numTestR, numTestN, verbose):
+def main(numTrainR, numTrainN, numTestR, numTestN, model, verbose):
     '''
     Main method: calls evaluate_classifier() and shows time elapsed
     '''
     t0 = time()
-    evaluate_classifier(numTrainR, numTrainN, numTestR, numTestN, verbose)
+    evaluate_classifier(numTrainR, numTrainN, numTestR, numTestN, model, verbose)
 
     tf = time()
     print "Elapsed time: {} seconds".format(tf - t0)
@@ -146,6 +161,8 @@ if __name__ == "__main__" :
                 default=100, help="Number of racist tweets in the test set")
     parser.add_argument("--n-normal-test", type=int, dest="numTestN",
                 default=1900, help="Number of non-racist tweets in the test set")
+    parser.add_argument("--model", type=str, dest="model",
+                default='NB', help="Select the model to use: 'SVM', 'NB' or 'RF'")
     parser.add_argument("--verbose", type=bool, dest="verbose",
                 default=False, help="If verbose=True, print wrong classifications")
 
